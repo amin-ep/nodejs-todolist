@@ -1,13 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
-import HTTPError from '../../utils/httpError';
-import User from '../../models/User';
+import HTTPError from '../../utils/httpError.js';
+import User from '../../models/User.js';
 import {
   loginValidator,
   signupValidator,
-} from '../../validators/authValidator';
-import catchAsync from '../../utils/catchAsync';
+} from '../../validators/authValidator.js';
+import catchAsync from '../../utils/catchAsync.js';
 import jwt from 'jsonwebtoken';
-import sendEmail from '../../utils/sendEmail';
+import sendEmail from '../../utils/sendEmail.js';
 
 class AuthController {
   generateToken(id: string) {
@@ -23,7 +23,7 @@ class AuthController {
       const { error } = signupValidator.validate(req.body);
 
       if (error) {
-        return next(new HTTPError(error.message, 400));
+        return next(new HTTPError(error.message as string, 400));
       }
       // check user exists or not
       const existingUser = await User.findOne({ email: req.body.email });
@@ -36,14 +36,14 @@ class AuthController {
           'host'
         )}/api/v1/verifyEmail/${key}`;
         const html = `
-          <p>To confirm your email address please click <a href="${link}"></a> 
+          <p>To confirm your email address please click <a href="${link}"></a>
         `;
 
         await sendEmail(
           {
             email: user.email,
             html: html,
-            subject: key,
+            message: key,
             text: `this is your email verification code: ${key}`,
           },
           res,
@@ -61,14 +61,14 @@ class AuthController {
           'host'
         )}/api/v1/verifyEmail/${key}`;
         const html = `
-          <p>To confirm your email address please click <a href="${link}"></a> 
+          <p>To confirm your email address please click <a href="${link}"></a>
         `;
 
         await sendEmail(
           {
             email: existingUser.email,
             html: html,
-            subject: key,
+            message: key,
             text: `this is your email verification code: ${key}`,
           },
           res,
@@ -98,14 +98,14 @@ class AuthController {
           'host'
         )}/api/v1/verifyEmail/${key}`;
         const html = `
-          <p>To confirm your email address please click <a href="${link}"></a> 
+          <p>To confirm your email address please click <a href="${link}"></a>
         `;
 
         await sendEmail(
           {
             email: existingUser.email,
             html: html,
-            subject: key,
+            message: key,
             text: `this is your email verification code: ${key}`,
           },
           res,
@@ -126,6 +126,14 @@ class AuthController {
       user.verified = true;
       user.verificationCode = undefined;
       await user.save({ validateBeforeSave: false });
+      const token = this.generateToken(user.id);
+      res.status(200).json({
+        status: 'success',
+        token,
+        data: {
+          user,
+        },
+      });
     }
   );
 

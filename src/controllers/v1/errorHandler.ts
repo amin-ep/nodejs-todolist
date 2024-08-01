@@ -1,11 +1,13 @@
-import { Request, Response, NextFunction, ErrorRequestHandler } from 'express';
+import { Request, Response, NextFunction } from 'express';
+import { config } from 'dotenv';
 
+config({ path: '.env' });
 const developmentError = (err: any, res: Response) => {
-  res.status(500).json({
+  res.status(err.statusCode).json({
     status: err.status,
     message: err.message,
-    stack: err.stack,
     err,
+    stack: err.stack,
   });
 };
 
@@ -18,7 +20,7 @@ const productionError = (err: any, res: Response) => {
   } else {
     res.status(500).json({
       status: 'error',
-      message: 'something went wrong!',
+      message: 'something went wrong',
       err,
     });
   }
@@ -30,10 +32,12 @@ export default function (
   res: Response,
   next: NextFunction
 ) {
+  err.status = err.status || 'error';
+  err.statusCode = err.statusCode || 500;
   const appMode = process.env.NODE_ENV as string;
   if (appMode === 'development') {
-    err = developmentError(err, res);
-  } else if (appMode === 'production') {
-    err = productionError(err, res);
+    developmentError(err, res);
+  } else {
+    productionError(err, res);
   }
 }

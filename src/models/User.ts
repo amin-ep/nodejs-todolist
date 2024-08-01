@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { IUser, IUserDocument } from '../interfaces/IUser';
+import { IUser, IUserDocument } from '../interfaces/IUser.js';
 import { v4 as uuid } from 'uuid';
 const userSchema: Schema<IUserDocument> = new Schema(
   {
@@ -8,7 +8,10 @@ const userSchema: Schema<IUserDocument> = new Schema(
       type: String,
       unique: true,
     },
-    email: String,
+    email: {
+      type: String,
+      index: true,
+    },
     password: {
       type: String,
     },
@@ -45,10 +48,7 @@ userSchema.methods.verifyPassword = async function (inputPassword: string) {
 };
 
 userSchema.methods.generateVerifyCode = function () {
-  if (typeof this.verificationCode === 'string') {
-    this.verificationCode = uuid();
-  }
-
+  this.verificationCode = uuid();
   return this.verificationCode;
 };
 

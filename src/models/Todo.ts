@@ -1,9 +1,17 @@
 import mongoose, { Schema } from 'mongoose';
 import slugify from 'slugify';
-const todoSchema = new Schema(
+import { ITodo } from '../interfaces/ITodo.js';
+const todoSchema: Schema<ITodo> = new Schema(
   {
     title: String,
-    completed: Boolean,
+    completed: {
+      type: Boolean,
+      default: false,
+    },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    },
     slug: String,
   },
   {

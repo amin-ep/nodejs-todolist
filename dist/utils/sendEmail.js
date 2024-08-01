@@ -1,9 +1,9 @@
-import emailService from '../email/email';
+import emailService from '../email/email.js';
 export default async function sendEmail(options, res, newUser) {
     try {
         await emailService({
             email: options.email,
-            subject: options.subject,
+            message: options.message,
             text: options.text,
             html: options.html,
         });
@@ -14,7 +14,7 @@ export default async function sendEmail(options, res, newUser) {
         });
     }
     catch (err) {
-        res.status(500).json({
+        res.status(err.responseCode).json({
             status: 'error',
             message: 'something went wrong!',
             err,

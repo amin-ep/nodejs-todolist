@@ -1,9 +1,9 @@
-import HTTPError from '../../utils/httpError';
-import User from '../../models/User';
-import { loginValidator, signupValidator, } from '../../validators/authValidator';
-import catchAsync from '../../utils/catchAsync';
+import HTTPError from '../../utils/httpError.js';
+import User from '../../models/User.js';
+import { loginValidator, signupValidator, } from '../../validators/authValidator.js';
+import catchAsync from '../../utils/catchAsync.js';
 import jwt from 'jsonwebtoken';
-import sendEmail from '../../utils/sendEmail';
+import sendEmail from '../../utils/sendEmail.js';
 class AuthController {
     generateToken(id) {
         const token = jwt.sign({ id: id }, process.env.JWT_SECRET, {
@@ -23,12 +23,12 @@ class AuthController {
             await user.save({ validateBeforeSave: false });
             const link = `${req.protocol}://${req.get('host')}/api/v1/verifyEmail/${key}`;
             const html = `
-          <p>To confirm your email address please click <a href="${link}"></a> 
+          <p>To confirm your email address please click <a href="${link}"></a>
         `;
             await sendEmail({
                 email: user.email,
                 html: html,
-                subject: key,
+                message: key,
                 text: `this is your email verification code: ${key}`,
             }, res, true);
         }
@@ -39,12 +39,12 @@ class AuthController {
             await existingUser.save({ validateBeforeSave: false });
             const link = `${req.protocol}://${req.get('host')}/api/v1/verifyEmail/${key}`;
             const html = `
-          <p>To confirm your email address please click <a href="${link}"></a> 
+          <p>To confirm your email address please click <a href="${link}"></a>
         `;
             await sendEmail({
                 email: existingUser.email,
                 html: html,
-                subject: key,
+                message: key,
                 text: `this is your email verification code: ${key}`,
             }, res, true);
         }
@@ -63,12 +63,12 @@ class AuthController {
             await existingUser.save({ validateBeforeSave: false });
             const link = `${req.protocol}://${req.get('host')}/api/v1/verifyEmail/${key}`;
             const html = `
-          <p>To confirm your email address please click <a href="${link}"></a> 
+          <p>To confirm your email address please click <a href="${link}"></a>
         `;
             await sendEmail({
                 email: existingUser.email,
                 html: html,
-                subject: key,
+                message: key,
                 text: `this is your email verification code: ${key}`,
             }, res, true);
         }
@@ -81,6 +81,14 @@ class AuthController {
         user.verified = true;
         user.verificationCode = undefined;
         await user.save({ validateBeforeSave: false });
+        const token = this.generateToken(user.id);
+        res.status(200).json({
+            status: 'success',
+            token,
+            data: {
+                user,
+            },
+        });
     });
     login = catchAsync(async (req, res, next) => {
         const { error } = loginValidator.validate(req.body);

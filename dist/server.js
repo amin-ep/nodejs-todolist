@@ -7,6 +7,6 @@ const mode = process.env.NODE_ENV;
 const DB = process.env.DB_URL;
 mongoose.connect(DB).catch(err => console.log(err));
 app.listen(port, () => {
-    console.log(`App is running on port:${port}!`);
-    console.log(`Mode:${mode}!`);
+    console.log(`App is running on port: ${port}`);
+    console.log(`Mode: ${mode}`);
 });

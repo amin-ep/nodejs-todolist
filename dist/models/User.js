@@ -6,7 +6,10 @@ const userSchema = new Schema({
         type: String,
         unique: true,
     },
-    email: String,
+    email: {
+        type: String,
+        index: true,
+    },
     password: {
         type: String,
     },
@@ -36,9 +39,7 @@ userSchema.methods.verifyPassword = async function (inputPassword) {
     return result;
 };
 userSchema.methods.generateVerifyCode = function () {
-    if (typeof this.verificationCode === 'string') {
-        this.verificationCode = uuid();
-    }
+    this.verificationCode = uuid();
     return this.verificationCode;
 };
 export default mongoose.model('User', userSchema);

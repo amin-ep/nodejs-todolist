@@ -1,20 +1,21 @@
 import nodemailer from 'nodemailer';
-const { SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD } = process.env;
+import { config } from 'dotenv';
+config({ path: './.env' });
 export default async function emailService(options) {
     const transporter = nodemailer.createTransport({
-        host: SMTP_HOST,
-        port: Number(SMTP_PORT),
+        host: process.env.SMTP_HOST,
+        port: Number(process.env.SMTP_PORT),
         tls: true,
         auth: {
-            user: SMTP_USERNAME,
-            pass: SMTP_PASSWORD,
+            user: process.env.SMTP_USERNAME,
+            pass: process.env.SMTP_PASSWORD,
         },
     });
     await transporter.sendMail({
-        from: 'Todo List <info@aminebadi.ir>',
+        from: 'TodoList <info@aminebadi.ir>',
         to: options.email,
-        subject: options.subject,
-        text: options.text,
+        subject: options.message,
+        text: options.message,
         html: options.html,
     });
 }

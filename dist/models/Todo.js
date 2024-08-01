@@ -2,7 +2,14 @@ import mongoose, { Schema } from 'mongoose';
 import slugify from 'slugify';
 const todoSchema = new Schema({
     title: String,
-    completed: Boolean,
+    completed: {
+        type: Boolean,
+        default: false,
+    },
+    user: {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+    },
     slug: String,
 }, {
     timestamps: true,

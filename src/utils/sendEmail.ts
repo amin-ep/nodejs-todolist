@@ -1,5 +1,5 @@
-import emailService from '../email/email';
-import { EmailOptions } from '../interfaces/IEmail';
+import emailService from '../email/email.js';
+import { EmailOptions } from '../interfaces/IEmail.js';
 import { Response } from 'express';
 
 export default async function sendEmail(
@@ -10,7 +10,7 @@ export default async function sendEmail(
   try {
     await emailService({
       email: options.email,
-      subject: options.subject,
+      message: options.message,
       text: options.text,
       html: options.html,
     });
@@ -19,8 +19,8 @@ export default async function sendEmail(
       status: 'success',
       message: `An email sent to ${options.email}`,
     });
-  } catch (err) {
-    res.status(500).json({
+  } catch (err: any) {
+    res.status(err.responseCode).json({
       status: 'error',
       message: 'something went wrong!',
       err,
