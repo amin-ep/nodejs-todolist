@@ -5,6 +5,7 @@ import { IRequest } from '../interfaces/IRequest.js';
 import jwt from 'jsonwebtoken';
 import { ObjectSchema } from 'joi';
 import User from '../models/User.js';
+import { isValidObjectId } from 'mongoose';
 
 export const protect = catchAsync(
   async (req: IRequest, res: Response, next: NextFunction) => {
@@ -23,7 +24,6 @@ export const protect = catchAsync(
 
     // @ts-ignore
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(decoded);
 
     const user = await User.findById(decoded.id);
 
@@ -31,7 +31,7 @@ export const protect = catchAsync(
       return next(new HTTPError('the user does not exists', 404));
     }
 
-    req.user = user.id;
+    req.user = user;
     next();
   }
 );
@@ -45,4 +45,26 @@ export const checkBodyValidation = (validator: ObjectSchema) => {
     }
     next();
   };
+};
+
+export const restrictTo = (...roles: string[]) => {
+  return (req: IRequest, res: Response, next: NextFunction) => {
+    if (!roles.includes(req.user.role)) {
+      return next('You do not have permission to perform this action!');
+    }
+    next();
+  };
+};
+
+export const checkID = (
+  req: IRequest,
+  res: Response,
+  next: NextFunction,
+  val: string
+) => {
+  if (!isValidObjectId(val)) {
+    console.log(val);
+    return next(new HTTPError(`Invalid ID:${req.params.id}`, 404));
+  }
+  next();
 };

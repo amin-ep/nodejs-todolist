@@ -15,6 +15,11 @@ const userSchema: Schema<IUserDocument> = new Schema(
     password: {
       type: String,
     },
+    role: {
+      type: String,
+      enum: ['admin', 'user'],
+      default: 'user',
+    },
     verified: {
       type: Boolean,
       default: false,

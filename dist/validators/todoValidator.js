@@ -6,3 +6,4 @@ const schema = {
     slug: Joi.string().forbidden(),
 };
 export const createTodoValidator = Joi.object(schema);
+export const updateTodoValidator = Joi.object(schema).fork(['user'], schema => schema.forbidden());

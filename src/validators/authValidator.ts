@@ -5,7 +5,7 @@ const schema = {
   email: Joi.string().email().required(),
   password: Joi.string().min(8).max(12).required(),
   verificationCode: Joi.string().forbidden(),
-  verified: Joi.string().forbidden().forbidden(),
+  verified: Joi.boolean().forbidden(),
 };
 
 export const signupValidator = Joi.object(schema);

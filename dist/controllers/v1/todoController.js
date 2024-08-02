@@ -12,9 +12,18 @@ class TodoController {
             },
         });
     });
+    getTodoById = catchAsync(async (req, res, next) => {
+        const todo = await Todo.findById(req.params.id);
+        res.status(200).json({
+            status: 'success',
+            data: {
+                todo,
+            },
+        });
+    });
     createTodo = catchAsync(async (req, res, next) => {
         if (!req.body.user)
-            req.body.user = req.user;
+            req.body.user = req.user._id;
         const { error } = createTodoValidator.validate(req.body);
         if (error) {
             return next(new HTTPError(error.message, 400));
@@ -46,7 +55,7 @@ class TodoController {
         });
     });
     getMyTodos = catchAsync(async (req, res, next) => {
-        const myTodos = await Todo.find({ user: req.user });
+        const myTodos = await Todo.find({ user: req.user._id });
         res.status(200).json({
             status: 'success',
             result: myTodos.length,

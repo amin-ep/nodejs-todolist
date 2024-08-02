@@ -6,7 +6,7 @@ import HTTPError from '../../utils/httpError.js';
 import { IRequest } from '../../interfaces/IRequest.js';
 class TodoController {
   getAllTodos = catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: IRequest, res: Response, next: NextFunction) => {
       const todos = await Todo.find();
 
       res.status(200).json({
@@ -17,9 +17,22 @@ class TodoController {
       });
     }
   );
+
+  getTodoById = catchAsync(
+    async (req: IRequest, res: Response, next: NextFunction) => {
+      const todo = await Todo.findById(req.params.id);
+
+      res.status(200).json({
+        status: 'success',
+        data: {
+          todo,
+        },
+      });
+    }
+  );
   createTodo = catchAsync(
     async (req: IRequest, res: Response, next: NextFunction) => {
-      if (!req.body.user) req.body.user = req.user;
+      if (!req.body.user) req.body.user = req.user._id;
       const { error } = createTodoValidator.validate(req.body);
       if (error) {
         return next(new HTTPError(error.message, 400));
@@ -35,7 +48,7 @@ class TodoController {
     }
   );
   updateTodo = catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: IRequest, res: Response, next: NextFunction) => {
       const updatedTodo = await Todo.findByIdAndUpdate(
         req.params.id,
         req.body,
@@ -54,7 +67,7 @@ class TodoController {
   );
 
   deleteTodo = catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
+    async (req: IRequest, res: Response, next: NextFunction) => {
       await Todo.findByIdAndDelete(req.params.id);
 
       res.status(204).json({
@@ -66,7 +79,7 @@ class TodoController {
 
   getMyTodos = catchAsync(
     async (req: IRequest, res: Response, next: NextFunction) => {
-      const myTodos = await Todo.find({ user: req.user });
+      const myTodos = await Todo.find({ user: req.user._id });
       res.status(200).json({
         status: 'success',
         result: myTodos.length,

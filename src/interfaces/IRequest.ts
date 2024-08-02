@@ -1,6 +1,6 @@
 import { Request } from 'express';
-import { IUser } from './IUser.js';
+import { IUser, IUserDocument } from './IUser.js';
 
 export interface IRequest extends Request {
-  user: string;
+  user: IUserDocument;
 }

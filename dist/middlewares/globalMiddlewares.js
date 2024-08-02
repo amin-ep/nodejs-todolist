@@ -2,6 +2,7 @@ import catchAsync from '../utils/catchAsync.js';
 import HTTPError from '../utils/httpError.js';
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
+import { isValidObjectId } from 'mongoose';
 export const protect = catchAsync(async (req, res, next) => {
     let token = '';
     const authorization = req.headers.authorization;
@@ -12,12 +13,11 @@ export const protect = catchAsync(async (req, res, next) => {
         return next(new HTTPError("You're not logged in. please login first!", 401));
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log(decoded);
     const user = await User.findById(decoded.id);
     if (!user) {
         return next(new HTTPError('the user does not exists', 404));
     }
-    req.user = user.id;
+    req.user = user;
     next();
 });
 export const checkBodyValidation = (validator) => {
@@ -28,4 +28,19 @@ export const checkBodyValidation = (validator) => {
         }
         next();
     };
+};
+export const restrictTo = (...roles) => {
+    return (req, res, next) => {
+        if (!roles.includes(req.user.role)) {
+            return next('You do not have permission to perform this action!');
+        }
+        next();
+    };
+};
+export const checkID = (req, res, next, val) => {
+    if (!isValidObjectId(val)) {
+        console.log(val);
+        return next(new HTTPError(`Invalid ID:${req.params.id}`, 404));
+    }
+    next();
 };

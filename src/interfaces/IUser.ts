@@ -4,6 +4,7 @@ export interface IUser {
   username: string;
   email: string;
   password: string;
+  role: string;
   verified: boolean;
   active: boolean;
   verificationCode: string | undefined;
