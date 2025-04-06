@@ -7,7 +7,6 @@ import {
 } from '../../validators/authValidator.js';
 import catchAsync from '../../utils/catchAsync.js';
 import jwt from 'jsonwebtoken';
-import sendEmail from '../../utils/sendEmail.js';
 
 class AuthController {
   generateToken(id: string) {
@@ -26,114 +25,27 @@ class AuthController {
         return next(new HTTPError(error.message as string, 400));
       }
       // check user exists or not
-      const existingUser = await User.findOne({ email: req.body.email });
+      const existingUser = await User.findOne({ email: req.body.username });
       // if user does not exists create new account
       if (!existingUser) {
         const user = await User.create(req.body);
-        const key = user.generateVerifyCode();
         await user.save({ validateBeforeSave: false });
-        const link = `${req.protocol}://${req.get(
-          'host'
-        )}/api/v1/verifyEmail/${key}`;
-        const html = `
-          <p>To confirm your email address please click <a href="${link}"></a>
-        `;
-
-        await sendEmail(
-          {
-            email: user.email,
-            html: html,
-            message: key,
-            text: `this is your email verification code: ${key}`,
-          },
-          res,
-          true
-        );
-      } else if (
-        existingUser &&
-        existingUser.verified === false &&
-        existingUser.active === true
-      ) {
+        const token = this.generateToken(user._id as string);
+        res.status(200).json({
+          status: 'success',
+          token: token,
+          data: user,
+        });
+      } else if (existingUser) {
         // if user exists with email and not verified send smtp email
-        const key = existingUser.generateVerifyCode();
-        await existingUser.save({ validateBeforeSave: false });
-        const link = `${req.protocol}://${req.get(
-          'host'
-        )}/api/v1/verifyEmail/${key}`;
-        const html = `
-          <p>To confirm your email address please click <a href="${link}"></a>
-        `;
 
-        await sendEmail(
-          {
-            email: existingUser.email,
-            html: html,
-            message: key,
-            text: `this is your email verification code: ${key}`,
-          },
-          res,
-          true
-        );
-      } else if (
-        existingUser &&
-        existingUser.verified === true &&
-        existingUser.active === true
-      ) {
-        // if user exists and verified send error
-        return next(new HTTPError('A user exists with this email', 403));
-      } else if (
-        existingUser &&
-        existingUser.verified === true &&
-        existingUser.active === false
-      ) {
-        // active user and send email if user exists but is not active
-        existingUser.active = true;
-        existingUser.verified = false;
-        await existingUser.save({ validateBeforeSave: false });
-        // send email
-
-        const key = existingUser.generateVerifyCode();
-        await existingUser.save({ validateBeforeSave: false });
-        const link = `${req.protocol}://${req.get(
-          'host'
-        )}/api/v1/verifyEmail/${key}`;
-        const html = `
-          <p>To confirm your email address please click <a href="${link}"></a>
-        `;
-
-        await sendEmail(
-          {
-            email: existingUser.email,
-            html: html,
-            message: key,
-            text: `this is your email verification code: ${key}`,
-          },
-          res,
-          true
+        return next(
+          new HTTPError(
+            'this username has been saved. Please choose another username!',
+            403
+          )
         );
       }
-    }
-  );
-
-  verifyEmail = catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const user = await User.findOne({ verificationCode: req.params.code });
-
-      if (!user) {
-        return next(new HTTPError('Invalid verification code', 403));
-      }
-
-      user.verified = true;
-      user.verificationCode = undefined;
-      await user.save({ validateBeforeSave: false });
-      const token = this.generateToken(user.id);
-      res.status(200).json({
-        status: 'success',
-        token,
-        data: {
-          user,
-        },
-      });
     }
   );
 
@@ -146,17 +58,9 @@ class AuthController {
         return next(new HTTPError(error.message, 400));
       }
       // send error if input email or password is incorrect
-      const user = await User.findOne({ email: req.body.email });
+      const user = await User.findOne({ email: req.body.username });
 
-      if (user?.verified === false) {
-        return next(new HTTPError('This account is not verified yet!', 401));
-      }
-
-      if (
-        !user ||
-        user.active === false ||
-        !user.verifyPassword(req.body.password)
-      ) {
+      if (!user || !(await user.verifyPassword(req.body.password))) {
         return next(new HTTPError('Incorrect email or password', 400));
       }
       // generate token
@@ -165,9 +69,7 @@ class AuthController {
       res.status(200).json({
         status: 'success',
         token,
-        data: {
-          user,
-        },
+        data: user,
       });
     }
   );

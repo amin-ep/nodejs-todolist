@@ -1,6 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import slugify from 'slugify';
 import { ITodo } from '../interfaces/ITodo.js';
+
 const todoSchema: Schema<ITodo> = new Schema(
   {
     title: String,

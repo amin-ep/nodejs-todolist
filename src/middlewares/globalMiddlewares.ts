@@ -1,14 +1,13 @@
 import { Request, Response, NextFunction } from 'express';
 import catchAsync from '../utils/catchAsync.js';
 import HTTPError from '../utils/httpError.js';
-import { IRequest } from '../interfaces/IRequest.js';
 import jwt from 'jsonwebtoken';
 import { ObjectSchema } from 'joi';
 import User from '../models/User.js';
 import { isValidObjectId } from 'mongoose';
 
 export const protect = catchAsync(
-  async (req: IRequest, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     let token: string = '';
     const authorization = req.headers.authorization;
 
@@ -37,7 +36,7 @@ export const protect = catchAsync(
 );
 
 export const checkBodyValidation = (validator: ObjectSchema) => {
-  return (req: Request, res: Response, next: NextFunction) => {
+  return (req: Request, _res: Response, next: NextFunction) => {
     const { error } = validator.validate(req.body);
 
     if (error) {
@@ -48,7 +47,7 @@ export const checkBodyValidation = (validator: ObjectSchema) => {
 };
 
 export const restrictTo = (...roles: string[]) => {
-  return (req: IRequest, res: Response, next: NextFunction) => {
+  return (req: Request, res: Response, next: NextFunction) => {
     if (!roles.includes(req.user.role)) {
       return next('You do not have permission to perform this action!');
     }
@@ -57,7 +56,7 @@ export const restrictTo = (...roles: string[]) => {
 };
 
 export const checkID = (
-  req: IRequest,
+  req: Request,
   res: Response,
   next: NextFunction,
   val: string

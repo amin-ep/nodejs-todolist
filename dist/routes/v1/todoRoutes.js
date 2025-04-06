@@ -10,7 +10,7 @@ router
     .route('/')
     .get(todo.getAllTodos)
     .post(checkBodyValidation(createTodoValidator), todo.createTodo);
-router.get('/getMyTodos', todo.getMyTodos);
+router.get('/myTodos', todo.getMyTodos);
 router
     .route('/:id')
     .patch(checkBodyValidation(updateTodoValidator), todo.updateTodo)

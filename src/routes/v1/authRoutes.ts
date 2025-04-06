@@ -7,6 +7,5 @@ const auth = new AuthController();
 
 router.post('/signup', auth.signup);
 router.post('/login', auth.login);
-router.post('/verifyEmail/:code', auth.verifyEmail);
 
 export default router;

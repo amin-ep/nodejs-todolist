@@ -1,16 +1,11 @@
-import { Model, Schema, Document } from 'mongoose';
+import { Document } from 'mongoose';
 
-export interface IUser {
+export interface IUser extends Document {
+  _id: string;
   username: string;
-  email: string;
+  name: string;
   password: string;
   role: string;
-  verified: boolean;
-  active: boolean;
   verificationCode: string | undefined;
-}
-
-export interface IUserDocument extends IUser, Document {
-  verifyPassword: (password: string) => Promise<void>;
-  generateVerifyCode: () => string;
+  verifyPassword: (password: string) => Promise<boolean>;
 }

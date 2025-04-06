@@ -1,16 +1,16 @@
-import mongoose, { Schema } from 'mongoose';
 import bcrypt from 'bcryptjs';
-import { IUser, IUserDocument } from '../interfaces/IUser.js';
-import { v4 as uuid } from 'uuid';
-const userSchema: Schema<IUserDocument> = new Schema(
+import mongoose, { Schema } from 'mongoose';
+import { IUser } from '../interfaces/IUser.js';
+
+const userSchema: Schema<IUser> = new Schema(
   {
+    name: {
+      type: String,
+    },
     username: {
       type: String,
       unique: true,
-    },
-    email: {
-      type: String,
-      index: true,
+      lowercase: true,
     },
     password: {
       type: String,
@@ -20,16 +20,6 @@ const userSchema: Schema<IUserDocument> = new Schema(
       enum: ['admin', 'user'],
       default: 'user',
     },
-    verified: {
-      type: Boolean,
-      default: false,
-    },
-    active: {
-      type: Boolean,
-      default: true,
-    },
-
-    verificationCode: String,
   },
   {
     timestamps: true,
@@ -50,11 +40,6 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.verifyPassword = async function (inputPassword: string) {
   const result = await bcrypt.compare(inputPassword, this.password);
   return result;
-};
-
-userSchema.methods.generateVerifyCode = function () {
-  this.verificationCode = uuid();
-  return this.verificationCode;
 };
 
 export default mongoose.model('User', userSchema);

@@ -13,8 +13,10 @@ const router = Router();
 const user = new UserController();
 
 router.use(protect, restrictTo('admin'));
+
 router.param('id', checkID);
 router.route('/').get(user.getAllUsers);
+
 router
   .route('/:id')
   .delete(user.deleteUser)

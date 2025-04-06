@@ -1,38 +1,33 @@
-import { NextFunction, Response } from 'express';
-import { IRequest } from '../../interfaces/IRequest.js';
+import { NextFunction, Request, Response } from 'express';
 import catchAsync from '../../utils/catchAsync.js';
 import User from '../../models/User.js';
 
 export default class UserController {
   getAllUsers = catchAsync(
-    async (req: IRequest, res: Response, next: NextFunction) => {
-      const todos = await User.find();
+    async (req: Request, res: Response, next: NextFunction) => {
+      const users = await User.find();
 
       res.status(200).json({
         status: 'success',
-        data: {
-          todos,
-        },
+        data: users,
       });
     }
   );
 
   getUserById = catchAsync(
-    async (req: IRequest, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, next: NextFunction) => {
       const user = await User.findById(req.params.id);
 
       res.status(200).json({
         status: 'success',
-        data: {
-          user,
-        },
+        data: user,
       });
     }
   );
 
   updateUser = catchAsync(
-    async (req: IRequest, res: Response, next: NextFunction) => {
-      const updatedTodo = await User.findByIdAndUpdate(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const updatedUser = await User.findByIdAndUpdate(
         req.params.id,
         req.body,
         {
@@ -42,15 +37,13 @@ export default class UserController {
 
       res.status(200).json({
         status: 'success',
-        data: {
-          todo: updatedTodo,
-        },
+        data: updatedUser,
       });
     }
   );
 
   deleteUser = catchAsync(
-    async (req: IRequest, res: Response, next: NextFunction) => {
+    async (req: Request, res: Response, next: NextFunction) => {
       await User.findByIdAndDelete(req.params.id);
 
       res.status(204).json({
@@ -59,8 +52,4 @@ export default class UserController {
       });
     }
   );
-
-  // delete me
-  // update me
-  // update my password
 }

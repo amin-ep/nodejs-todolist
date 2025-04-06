@@ -21,7 +21,7 @@ export const protect = catchAsync(async (req, res, next) => {
     next();
 });
 export const checkBodyValidation = (validator) => {
-    return (req, res, next) => {
+    return (req, _res, next) => {
         const { error } = validator.validate(req.body);
         if (error) {
             return next(new HTTPError(error.message, 400));

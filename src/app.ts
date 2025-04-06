@@ -4,7 +4,15 @@ import todoRouter from './routes/v1/todoRoutes.js';
 import globalErrorHandler from './controllers/v1/errorHandler.js';
 import HTTPError from './utils/httpError.js';
 import userRouter from './routes/v1/userRoutes.js';
+import { IUser } from './interfaces/IUser.js';
+
 const app = express();
+
+declare module 'express-serve-static-core' {
+  interface Request {
+    user: IUser;
+  }
+}
 
 app.use(express.json());
 
