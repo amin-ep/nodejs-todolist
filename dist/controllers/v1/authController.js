@@ -35,9 +35,10 @@ class AuthController {
         if (error) {
             return next(new HTTPError(error.message, 400));
         }
-        const user = await User.findOne({ email: req.body.username });
+        const user = await User.findOne({ username: req.body.username });
+        console.log(await user.verifyPassword(req.body.password));
         if (!user || !(await user.verifyPassword(req.body.password))) {
-            return next(new HTTPError('Incorrect email or password', 400));
+            return next(new HTTPError('Incorrect username or password', 400));
         }
         const token = this.generateToken(user.id);
         res.status(200).json({

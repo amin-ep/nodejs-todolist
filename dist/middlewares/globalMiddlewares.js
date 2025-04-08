@@ -44,3 +44,8 @@ export const checkID = (req, res, next, val) => {
     }
     next();
 };
+export const setUserOnBody = async (req, res, next) => {
+    if (!req.body.user)
+        req.body.user = req.user._id;
+    next();
+};

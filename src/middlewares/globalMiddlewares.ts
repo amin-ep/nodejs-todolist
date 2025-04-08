@@ -67,3 +67,12 @@ export const checkID = (
   }
   next();
 };
+
+export const setUserOnBody = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (!req.body.user) req.body.user = req.user._id;
+  next();
+};

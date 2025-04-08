@@ -4,7 +4,11 @@ import { ITodo } from '../interfaces/ITodo.js';
 
 const todoSchema: Schema<ITodo> = new Schema(
   {
-    title: String,
+    title: {
+      type: String,
+      trim: true,
+      index: true,
+    },
     completed: {
       type: Boolean,
       default: false,

@@ -1,6 +1,5 @@
 import Todo from '../../models/Todo.js';
 import catchAsync from '../../utils/catchAsync.js';
-import { createTodoValidator } from '../../validators/todoValidator.js';
 import HTTPError from '../../utils/httpError.js';
 class TodoController {
     getAllTodos = catchAsync(async (_req, res, next) => {
@@ -28,12 +27,6 @@ class TodoController {
         });
     });
     createTodo = catchAsync(async (req, res, next) => {
-        if (!req.body.user)
-            req.body.user = req.user._id;
-        const { error } = createTodoValidator.validate(req.body);
-        if (error) {
-            return next(new HTTPError(error.message, 400));
-        }
         const newTodo = await Todo.create(req.body);
         res.status(201).json({
             status: 'success',

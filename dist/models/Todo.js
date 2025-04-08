@@ -1,7 +1,11 @@
 import mongoose, { Schema } from 'mongoose';
 import slugify from 'slugify';
 const todoSchema = new Schema({
-    title: String,
+    title: {
+        type: String,
+        trim: true,
+        index: true,
+    },
     completed: {
         type: Boolean,
         default: false,

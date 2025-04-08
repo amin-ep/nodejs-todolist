@@ -44,14 +44,6 @@ class TodoController {
 
   createTodo = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      if (!req.body.user) req.body.user = req.user._id;
-
-      const { error } = createTodoValidator.validate(req.body);
-
-      if (error) {
-        return next(new HTTPError(error.message, 400));
-      }
-
       const newTodo = await Todo.create(req.body);
 
       res.status(201).json({

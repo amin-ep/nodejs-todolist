@@ -11,6 +11,7 @@ const userSchema: Schema<IUser> = new Schema(
       type: String,
       unique: true,
       lowercase: true,
+      trim: true,
     },
     password: {
       type: String,
@@ -27,19 +28,14 @@ const userSchema: Schema<IUser> = new Schema(
 );
 
 userSchema.pre('save', async function (next) {
-  if (!this.isModified) {
-    next();
-  }
+  if (!this.isModified('password')) return next();
 
-  if (typeof this.password === 'string') {
-    this.password = await bcrypt.hash(this.password, 12);
-  }
+  this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-userSchema.methods.verifyPassword = async function (inputPassword: string) {
-  const result = await bcrypt.compare(inputPassword, this.password);
-  return result;
+userSchema.methods.verifyPassword = function (candidatePassword: string) {
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
 export default mongoose.model('User', userSchema);
